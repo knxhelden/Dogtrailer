@@ -1,2 +1,2 @@
-# dogtrailer
-Monitoring for a dog in a trailer
+# Dog Trailer Monitor
+This is a solution for monitoring a dog in a car trailer.
