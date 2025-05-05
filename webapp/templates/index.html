@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Dogtrailer{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col">
+    <img src="/video_feed" style="width: 100%">
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <h2 class="mt-5 mb-3 display-6">Temperatur</h2>
+    <h3 style="color: red;">{{ temperature }} °C</h3>
+  </div>
+  <div class="col">
+    <h2 class="mt-5 mb-3 display-6">Feuchtigkeit</h2>
+    <h3 style="color: blue;">{{ humidity }} %</h3>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    {% if stateRelais1 == 0 %}
+    <h2 class="mt-5 mb-3 display-6"><i id="light-left" class="bi-lightbulb-fill text-warning"></i> Linkes Licht</h2>
+    {% else %}
+    <h2 class="mt-5 mb-3 display-6"><i id="light-left" class="bi-lightbulb text-secondary"></i> Linkes Licht</h2>
+    {% endif %}
+    <button type="button" class="btn btn-lg btn-success" onclick="lightControl('left', 'on')">AN</button>
+    <button type="button" class="btn btn-lg btn-danger" onclick="lightControl('left', 'off')">AUS</button>
+  </div>
+  <div class="col">
+    {% if stateRelais2 == 0 %}
+    <h2 class="mt-5 mb-3 display-6"><i id="light-right" class="bi-lightbulb-fill text-warning"></i> Rechtes Licht</h2>
+    {% else %}
+    <h2 class="mt-5 mb-3 display-6"><i id="light-right" class="bi-lightbulb text-secondary"></i> Rechtes Licht</h2>
+    {% endif %}
+    <button type="button" class="btn btn-lg btn-success" onclick="lightControl('right', 'on')">AN</button>
+    <button type="button" class="btn btn-lg btn-danger" onclick="lightControl('right', 'off')">AUS</button>
+  </div>
+</div>
+
+<script>
+  function lightControl(light, state) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      if(state == 'on') {
+        document.getElementById('light-' + light).className = "bi-lightbulb-fill text-warning";
+      } else {
+        document.getElementById('light-' + light).className = "bi-lightbulb text-secondary";
+      }
+     
+    }
+  };
+
+  xhttp.open('GET', '/light' + light + '/' + state, true);
+  xhttp.send();
+}
+</script>
+{% endblock %}
