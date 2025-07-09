@@ -3,6 +3,10 @@ This is a solution for monitoring a dog in a car trailer.
 
 # Components
 
+# Circuit & Wiring
+
+![Dog_Trailer_Breadboard](https://github.com/user-attachments/assets/2f722542-6e5a-446f-82ca-80c806fdb9cd)
+
 # Installation
 
 ## Raspberry Pi OS
