@@ -3,6 +3,9 @@ This is a solution for monitoring a dog in a car trailer.
 
 # Components
 
+| Hardware | Raspberry Pi Zero 2 W |
+| OS | Raspberry Pi OS (64-bit, Bullseye) |
+
 - Raspberry Pi Zero 2 W
 - Raspberry Pi Zero Camera
 - 2 Relay Module
