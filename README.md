@@ -35,7 +35,6 @@ A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trail
 
 ✅ Your base system is now ready.
 
----
 
 ### 📡 Configure Access Point (Hotspot)
 
@@ -52,7 +51,6 @@ Expected output:
 WIFI-PROPERTIES.AP: yes
 ```
 
----
 
 #### 2. Create hotspot via NetworkManager
 
@@ -66,7 +64,6 @@ nmcli dev wifi hotspot \
   password "dogtrailer"
 ```
 
----
 
 #### 3. Troubleshooting: WLAN interface unavailable
 
@@ -99,7 +96,6 @@ nmcli radio wifi on
 > sudo systemctl restart NetworkManager
 > ```
 
----
 
 #### 4. Configure IP routing and NAT (mini-router)
 
@@ -112,7 +108,6 @@ nmcli connection modify Hotspot \
   ipv4.gateway 192.168.1.1
 ```
 
----
 
 #### 5. Restart NetworkManager and activate the hotspot
 
