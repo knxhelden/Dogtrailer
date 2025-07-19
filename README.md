@@ -2,7 +2,6 @@
 
 A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trailer – featuring live video, GPIO control, and local access point functionality.
 
----
 
 ## 🔧 Hardware
 
@@ -13,13 +12,11 @@ A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trail
 - Custom case with mounting hardware  
 - Cable grommet for external wiring  
 
----
 
 ## ⚡ Circuit & Wiring
 
 ![Dog_Trailer_Breadboard](https://github.com/user-attachments/assets/2f722542-6e5a-446f-82ca-80c806fdb9cd)
 
----
 
 ## 📦 Installation Guide
 
@@ -35,6 +32,7 @@ A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trail
 
 ✅ Your base system is now ready.
 
+---
 
 ### 📡 Configure Access Point (Hotspot)
 
