@@ -136,3 +136,25 @@ After running this, the access point will be active shortly after each boot.
    sudo apt install python3 python3-pip python3-flask
 
 ✅ You can now run lightweight Flask-based web applications for monitoring and control.
+
+2. Create a directory for the dogtrailer web app:
+
+```bash
+mkdir webapp
+```
+
+3. Copy the contents of the `webapp` folder from this repository into the newly created `webapp` directory.
+
+4. Start the app:
+
+```bash
+python3 app.py
+```
+
+5. On any device connected to the access point, open your browser and visit:
+
+```
+http://192.168.1.1
+```
+
+You should see the Dog Trailer Monitor web interface.
