@@ -115,6 +115,17 @@ sudo nmcli connection up Hotspot
 nmcli connection show
 ```
 
+
+#### 6. Enable automatic startup on boot
+
+To make the access point start automatically after a reboot, enable autoconnect for the Hotspot:
+
+```bash
+nmcli connection modify Hotspot connection.autoconnect yes
+```
+
+After running this, the access point will be active shortly after each boot.
+
 ---
 
 ### 🌐 Install Python Webserver
