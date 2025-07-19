@@ -35,60 +35,100 @@ A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trail
 
 ✅ Your base system is now ready.
 
-## Access Point
+---
 
-1. Check if the interface supports AP (Access Point) mode:
-```
+### 📡 Configure Access Point (Hotspot)
+
+#### 1. Check AP support
+
+Ensure the wireless interface supports Access Point mode:
+
+```bash
 nmcli -f WIFI-PROPERTIES device show wlan0
 ```
 
-The result should be `WIFI-PROPERTIES.AP: yes`.
-
-2. A new configuration for an access point is added via the Network Manager:
+Expected output:
 ```
-nmcli dev wifi hotspot ifname wlan0 con-name Hotspot ssid "Dogtrailer" band bg channel 3 password "dogtrailer"
+WIFI-PROPERTIES.AP: yes
 ```
 
-If an error occurs, it is possible that the Network Manager is not managing the WLAN interface or that it is blocked.
+---
+
+#### 2. Create hotspot via NetworkManager
+
+```bash
+nmcli dev wifi hotspot \
+  ifname wlan0 \
+  con-name Hotspot \
+  ssid "Dogtrailer" \
+  band bg \
+  channel 3 \
+  password "dogtrailer"
 ```
+
+---
+
+#### 3. Troubleshooting: WLAN interface unavailable
+
+Check current device status:
+
+```bash
 nmcli device status
 ```
 
-If `wlan0` says `disconnected` or `unavailable` check if wlan0 is blocked or turned off:
+If `wlan0` is listed as `unavailable` or `disconnected`, check if it’s blocked:
 
-```
-shutdown
+```bash
 rfkill list wlan
 ```
 
-If the result is `Soft blocked: yes` or `Hard blocked: yes`, then:
-
-```
+If it’s blocked:
+```bash
 sudo rfkill unblock wifi
 nmcli radio wifi on
 ```
 
-Now you can try to add a connection again.
+> 💡 If the issue persists, ensure `wlan0` is managed by NetworkManager:
+> Open `/etc/NetworkManager/NetworkManager.conf` and add:
+> ```ini
+> [keyfile]
+> unmanaged-devices=none
+> ```
+> Then restart the service:
+> ```bash
+> sudo systemctl restart NetworkManager
+> ```
 
-3. The access point is now available, but it still needs to be configured as a mini router (NAT + DHCP server):
+---
 
+#### 4. Configure IP routing and NAT (mini-router)
+
+To enable NAT and DHCP for clients connected to the access point:
+
+```bash
+nmcli connection modify Hotspot \
+  ipv4.method shared \
+  ipv4.addresses 192.168.1.1/24 \
+  ipv4.gateway 192.168.1.1
 ```
-nmcli connection modify Hotspot ipv4.method shared ipv4.addresses 192.168.1.1/24 ipv4.gateway 192.168.1.1
-```
 
-4. After configuration, the `network-manager` service is restarted and the `Hotspot` connection is activated:
+---
 
-```
+#### 5. Restart NetworkManager and activate the hotspot
+
+```bash
 sudo service network-manager restart
 sudo nmcli connection up Hotspot
 nmcli connection show
 ```
 
-## Webserver
+---
 
-1. First, Python including the package manager and web framework must be installed:
+### 🌐 Install Python Webserver
 
-```
-sudo apt update
-sudo apt install python3 python3-pip python3-flask
-```
+1. Install Python, pip, and Flask:
+   ```bash
+   sudo apt update
+   sudo apt install python3 python3-pip python3-flask
+
+✅ You can now run lightweight Flask-based web applications for monitoring and control.
