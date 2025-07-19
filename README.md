@@ -1,34 +1,39 @@
-# Dog Trailer Monitor
-This is a solution for monitoring a dog in a car trailer.
+# 🐶 Dog Trailer Monitor
 
-# Hardware
+A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trailer – featuring live video, GPIO control, and local access point functionality.
 
-- Raspberry Pi Zero 2 W
-- NoIR Camera for Raspberry Pi Zero
-- 2 Relay Module
-- LM2596S Step-down Converter
-- Case
-- Screws
-- Kabeltülle
+---
 
-# Circuit & Wiring
+## 🔧 Hardware
+
+- Raspberry Pi Zero 2 W  
+- NoIR Camera for Raspberry Pi Zero  
+- 2-Channel Relay Module  
+- LM2596S Step-down Converter  
+- Custom case with mounting hardware  
+- Cable grommet for external wiring  
+
+---
+
+## ⚡ Circuit & Wiring
 
 ![Dog_Trailer_Breadboard](https://github.com/user-attachments/assets/2f722542-6e5a-446f-82ca-80c806fdb9cd)
 
-# Installation Guide
+---
 
-## Raspberry Pi OS (64-bit, Bookworm)
+## 📦 Installation Guide
 
-1. Flash Raspberry Pi OS Bookworm (64-bit) onto an SD card, then insert it into the Raspberry Pi Zero 2 W and start the Raspberry Pi.
+### 📥 Raspberry Pi OS (64-bit, Bookworm)
 
-2. Configure a Wi-Fi connection to your local network.
+1. Flash **Raspberry Pi OS Bookworm (64-bit)** to a microSD card using the [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+2. Insert the card into the Raspberry Pi Zero 2 W and power it on.
+3. Connect the Pi to a Wi-Fi network (via GUI, `nmtui`, or `nmcli`).
+4. Update the system packages:
+   ```bash
+   sudo apt update && sudo apt full-upgrade -y
+   ```
 
-3. Update Raspberry PI OS:
-```
-sudo apt update && sudo apt full-upgrade -y
-```
-
-4. The basic system is ready, now it's time to configure!
+✅ Your base system is now ready.
 
 ## Access Point
 
