@@ -34,6 +34,45 @@ A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trail
 
 ---
 
+### 🌐 Install Python Webserver
+
+1. Install Python, pip, and Flask:
+   ```bash
+   sudo apt update && sudo apt install python3 python3-pip python3-flask python3-picamera2 -y
+
+✅ You can now run lightweight Flask-based web applications for monitoring and control.
+
+2. Install Adafruit libraries for GPIO + DHT22 sensor:
+***(Bookworm blocks pip systemwide, deshalb mit `--break-system-packages`)***
+
+```bash
+pip3 install adafruit-blinka adafruit-circuitpython-dht --break-system-packages
+```
+
+3. Create a directory for the dogtrailer web app:
+
+```bash
+mkdir webapp
+```
+
+4. Copy the contents of the `webapp` folder from this repository into the newly created `webapp` directory.
+
+5. Start the app:
+
+```bash
+python3 app.py
+```
+
+6. On any device connected to the access point, open your browser and visit:
+
+```
+http://192.168.1.1
+```
+
+You should see the Dog Trailer Monitor web interface.
+
+---
+
 ### 📡 Configure Access Point (Hotspot)
 
 #### 1. Check AP support
@@ -102,8 +141,8 @@ To enable NAT and DHCP for clients connected to the access point:
 ```bash
 nmcli connection modify Hotspot \
   ipv4.method shared \
-  ipv4.addresses 192.168.1.1/24 \
-  ipv4.gateway 192.168.1.1
+  ipv4.addresses 192.168.137.2/24 \
+  ipv4.gateway 192.168.137.1
 ```
 
 
@@ -125,36 +164,3 @@ nmcli connection modify Hotspot connection.autoconnect yes
 ```
 
 After running this, the access point will be active shortly after each boot.
-
----
-
-### 🌐 Install Python Webserver
-
-1. Install Python, pip, and Flask:
-   ```bash
-   sudo apt update
-   sudo apt install python3 python3-pip python3-flask
-
-✅ You can now run lightweight Flask-based web applications for monitoring and control.
-
-2. Create a directory for the dogtrailer web app:
-
-```bash
-mkdir webapp
-```
-
-3. Copy the contents of the `webapp` folder from this repository into the newly created `webapp` directory.
-
-4. Start the app:
-
-```bash
-python3 app.py
-```
-
-5. On any device connected to the access point, open your browser and visit:
-
-```
-http://192.168.1.1
-```
-
-You should see the Dog Trailer Monitor web interface.
