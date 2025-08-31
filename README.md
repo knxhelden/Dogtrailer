@@ -37,8 +37,10 @@ A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trail
 ### 🌐 Install Python Webserver
 
 #### 1. Install Python, pip, and Flask:
-   ```bash
-   sudo apt update && sudo apt install python3 python3-pip python3-flask python3-picamera2 -y
+
+```bash
+sudo apt update && sudo apt install python3 python3-pip python3-flask python3-picamera2 -y
+```
 
 ✅ You can now run lightweight Flask-based web applications for monitoring and control.
 
