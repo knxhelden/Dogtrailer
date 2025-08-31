@@ -43,6 +43,7 @@ A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trail
 ✅ You can now run lightweight Flask-based web applications for monitoring and control.
 
 2. Install Adafruit libraries for GPIO + DHT22 sensor:
+
 *(Bookworm blocks pip systemwide, deshalb mit `--break-system-packages`)*
 
 ```bash
