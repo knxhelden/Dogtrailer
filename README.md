@@ -36,35 +36,34 @@ A lightweight Raspberry Pi-based monitoring solution for dogs inside a car trail
 
 ### 🌐 Install Python Webserver
 
-1. Install Python, pip, and Flask:
+#### 1. Install Python, pip, and Flask:
    ```bash
    sudo apt update && sudo apt install python3 python3-pip python3-flask python3-picamera2 -y
 
 ✅ You can now run lightweight Flask-based web applications for monitoring and control.
 
-2. Install Adafruit libraries for GPIO + DHT22 sensor:
-
+#### 2. Install Adafruit libraries for GPIO + DHT22 sensor:
 *(Bookworm blocks pip systemwide, deshalb mit `--break-system-packages`)*
 
 ```bash
 pip3 install adafruit-blinka adafruit-circuitpython-dht --break-system-packages
 ```
 
-3. Create a directory for the dogtrailer web app:
+#### 3. Create a directory for the dogtrailer web app:
 
 ```bash
 mkdir webapp
 ```
 
-4. Copy the contents of the `webapp` folder from this repository into the newly created `webapp` directory.
+#### 4. Copy the contents of the `webapp` folder from this repository into the newly created `webapp` directory.
 
-5. Start the app:
+#### 5. Start the app:
 
 ```bash
 python3 app.py
 ```
 
-6. On any device connected to the access point, open your browser and visit:
+#### 6. On any device connected to the access point, open your browser and visit:
 
 ```
 http://192.168.1.1
