@@ -38,7 +38,6 @@ The following diagram shows the wiring of the Raspberry Pi, relays, and power su
 
 ✅ Your base system is now ready.
 
----
 
 ### 🌐 Install Dogtrailer Webapp and Access Point
 
