@@ -70,6 +70,34 @@ You will have access to:
 - Relay controls (e.g., switch fans/lights)
 - Status page with system information
 
+
+## 📡 Access Point Management
+
+The installer sets up a **Hotspot profile** called `Hotspot` in **NetworkManager**.  
+For security reasons it is **not activated automatically during installation**, but it is configured for autostart after reboot once it has been activated at least once.
+
+Run this once (locally or via SSH) for a one-time activation:
+
+```bash
+sudo nmcli connection up Hotspot
+```
+⚠️ **If you are connected via Wi-Fi/SSH, the connection may drop** because `wlan0` will be reconfigured.
+
+After this, the access point will automatically start on every reboot.
+Clients can connect to the SSID:
+- **SSID:** `Dogtrailer`
+- **Password:** `dogtrailer`
+- **Gateway/IP of the Pi:** `192.168.1.1`
+
+You can then open the web interface under: `http://192.168.1.1:5000`
+
+Useful commands for **NetworkManager** profiles:
+
+- Show all connections: `nmcli connection show`
+- Show active connections: `nmcli connection show --active`
+- Stop the access point manually: `sudo nmcli connection down Hotspot`
+
+
 ## 🐞 Debugging & Development
 
 - Check service logs:

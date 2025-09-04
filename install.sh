@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-trap 'echo -e "\033[1;31m[✗] Fehler in Zeile $LINENO: ${BASH_COMMAND}\033[0m"; exit 1' ERR
+trap 'echo -e "\033[1;31m[✗] Error in line $LINENO: ${BASH_COMMAND}\033[0m"; exit 1' ERR
 
-### ────────── Configuration ──────────
+### ────────── App Configuration ──────────
 APP_NAME="dogtrailer"
 REPO_URL="https://github.com/knxhelden/Dogtrailer.git"
 APP_USER="${SUDO_USER:-${USER}}"
@@ -15,15 +15,27 @@ ENTRYPOINT="webapp/app.py"
 SERVICE_PORT="5000"
 ENV_FILE="${INSTALL_DIR}/.env"
 USE_GUNICORN="true"
-INSTALL_DEBUG_TOOLS="true"
-BIND_IPV6="false"   # true = zusätzlich auf [::]:PORT binden
+BIND_IPV6="false"
+
+
+# ─── Access Point (NetworkManager) ─────────────────────────
+HOTSPOT_IF="wlan0"
+HOTSPOT_CON_NAME="Hotspot"
+HOTSPOT_SSID="Dogtrailer"
+HOTSPOT_PASSWORD="dogtrailer"
+HOTSPOT_BAND="bg"
+HOTSPOT_CHANNEL="3"
+HOTSPOT_IPV4_CIDR="192.168.1.1/24"
+HOTSPOT_GATEWAY="${HOTSPOT_IPV4_CIDR%/*}"
+
 
 ### ────────── Helpers ──────────
 log()  { echo -e "\033[1;32m[+] $*\033[0m"; }
 warn() { echo -e "\033[1;33m[!] $*\033[0m"; }
 err()  { echo -e "\033[1;31m[✗] $*\033[0m" >&2; }
-require_root() { [[ $EUID -eq 0 ]] || { err "Bitte mit sudo ausführen"; exit 1; }; }
+require_root() { [[ $EUID -eq 0 ]] || { err "Please run with sudo"; exit 1; }; }
 cmd_exists() { command -v "$1" &>/dev/null; }
+
 
 ### ────────── Start ──────────
 require_root
@@ -32,31 +44,29 @@ export DEBIAN_FRONTEND=noninteractive
 log "Update system packages …"
 apt-get update -y
 
-log "Install required packages (Python, Picamera2, GPIO, Blinka/libgpiod) …"
+log "Install required packages …"
 apt-get install -y --no-install-recommends \
   python3 python3-venv python3-pip \
   python3-dev build-essential \
   python3-picamera2 python3-rpi.gpio \
   libgpiod2 python3-libgpiod ca-certificates git curl
 
-if [[ "${INSTALL_DEBUG_TOOLS}" == "true" ]]; then
-  log "Install optional debug tools (libcamera-apps, i2c-tools) …"
-  apt-get install -y --no-install-recommends libcamera-apps i2c-tools
-fi
+log "Install debug tools …"
+apt-get install -y --no-install-recommends libcamera-apps i2c-tools
 
-log "Activate camera & interfaces …"
+log "Activate camera & interfaces at Raspberry Pi …"
 if cmd_exists raspi-config; then
   raspi-config nonint do_camera 0 || true
   raspi-config nonint do_i2c 0 || true
   raspi-config nonint do_spi 0 || true
 else
-  warn "raspi-config not found – ggf. Kamera/I2C/SPI manuell aktivieren."
+  warn "raspi-config not found – if necessary, activate camera/I2C/SPI manually."
 fi
 
 log "Add user '${APP_USER}' to groups 'video' and 'gpio' …"
 usermod -aG video,gpio "${APP_USER}" || true
 
-log "Setup repository in ${INSTALL_DIR} …"
+log "Setup github repository in ${INSTALL_DIR} …"
 if [[ -d "${INSTALL_DIR}/.git" ]]; then
   CURRENT_BRANCH="$(git -C "${INSTALL_DIR}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo main)"
   git -C "${INSTALL_DIR}" fetch --all --prune
@@ -66,12 +76,14 @@ else
   git clone "${REPO_URL}" "${INSTALL_DIR}"
 fi
 
-log "Fix ownership …"
+log "Fix ownership for local repository directory …"
 chown -R "${APP_USER}:${APP_GROUP}" "${INSTALL_DIR}"
 
 log "Create Python venv …"
 if [[ ! -d "${VENV_DIR}" ]]; then
   sudo -u "${APP_USER}" "${PYTHON_BIN}" -m venv --system-site-packages "${VENV_DIR}"
+else
+  warn "Virtualenv already exists – skip creation."
 fi
 
 log "Install Python dependencies from requirements.txt …"
@@ -83,7 +95,7 @@ fi
 sudo -u "${APP_USER}" bash -lc "${VENV_DIR}/bin/pip install --upgrade pip"
 sudo -u "${APP_USER}" bash -lc "${VENV_DIR}/bin/pip install -r '${INSTALL_DIR}/requirements.txt'"
 
-log "Create/check .env …"
+log "Create and check .env …"
 if [[ ! -f "${ENV_FILE}" ]]; then
   cat > "${ENV_FILE}" <<'EOF'
 FLASK_DEBUG=0
@@ -97,7 +109,7 @@ EOF
   chmod 640 "${ENV_FILE}"
   log ".env created at ${ENV_FILE}"
 else
-  warn ".env already exists – unchanged."
+  warn ".env already exists – skip creation."
 fi
 
 # Build ExecStart
@@ -148,13 +160,69 @@ systemctl restart "${APP_NAME}.service" || true
 
 # UFW: Port nur öffnen, wenn UFW aktiv ist
 if cmd_exists ufw && ufw status | grep -q "Status: active"; then
-  log "UFW aktiv – erlaube Port ${SERVICE_PORT}/tcp …"
+  log "UFW active – allow port ${SERVICE_PORT}/tcp …"
   ufw allow ${SERVICE_PORT}/tcp || true
 fi
 
+
+# Access Point
+log "Configure Access Point (NetworkManager) …"
+
+# 0) WLAN entsperren & Radio einschalten (idempotent)
+if cmd_exists rfkill; then rfkill unblock wifi || true; fi
+nmcli radio wifi on || true
+
+# 1) Prüfen, ob NM läuft
+if ! systemctl is-active --quiet NetworkManager; then
+  err "NetworkManager is not active. Please use Raspberry Pi OS (Bookworm) with NetworkManager."
+  # Kein hartes exit: wir lassen den Rest weiterlaufen
+fi
+
+# 2) Prüfen, ob Interface AP unterstützt (optional, nur Warnung)
+if nmcli -f WIFI-PROPERTIES device show "${HOTSPOT_IF}" 2>/dev/null | grep -q 'WIFI-PROPERTIES.AP:\s\+yes'; then
+  :
+else
+  warn "Interface ${HOTSPOT_IF} may report no AP support. Try it anyway."
+fi
+
+# 3) Hotspot-Connection anlegen (Profil nur erstellen, nicht sofort aktivieren)
+if ! nmcli -t -f NAME connection show | grep -Fxq "${HOTSPOT_CON_NAME}"; then
+  log "Create NM hotspot connection profile '${HOTSPOT_CON_NAME}' …"
+  nmcli connection add type wifi ifname "${HOTSPOT_IF}" con-name "${HOTSPOT_CON_NAME}" \
+    autoconnect no ssid "${HOTSPOT_SSID}"
+  nmcli connection modify "${HOTSPOT_CON_NAME}" \
+    802-11-wireless.mode ap \
+    802-11-wireless.band "${HOTSPOT_BAND}" \
+    802-11-wireless.channel "${HOTSPOT_CHANNEL}" \
+    wifi-sec.key-mgmt wpa-psk \
+    wifi-sec.psk "${HOTSPOT_PASSWORD}"
+else
+  warn "Hotspot connection '${HOTSPOT_CON_NAME}' already exists – update settings."
+fi
+
+# 4) IPv4/NAT Sharing, statische IP, Autostart, IPv6 aus
+nmcli connection modify "${HOTSPOT_CON_NAME}" \
+  ipv4.method shared \
+  ipv4.addresses "${HOTSPOT_IPV4_CIDR}" \
+  ipv4.gateway "${HOTSPOT_GATEWAY}" \
+  ipv6.method disabled \
+  connection.autoconnect yes \
+  connection.autoconnect-priority 999 || warn "Could not fully set hotspot parameters."
+
+# 6) Zusammenfassung ausgeben
+nmcli -t -f NAME,UUID,DEVICE,TYPE,STATE connection show --active || true
+log "Access Point setup completed: SSID='${HOTSPOT_SSID}', IP ${HOTSPOT_GATEWAY} (NAT)."
+
+
 IP="$(hostname -I | awk '{print $1}')"
 echo
-log "Done. Check status & open in browser:"
+echo
+echo
+log "DONE! Check status & open app in browser:"
 echo "→ Status:  journalctl -u ${APP_NAME}.service -f"
 echo "→ URL:     http://${IP}:${SERVICE_PORT}"
-echo "Note: Group changes (video/gpio) may require re-login/reboot."
+echo "→ Start Access Point mode: sudo nmcli connection up ${HOTSPOT_CON_NAME}"
+echo
+warn "Note: Group changes (video/gpio) may require reboot."
+echo
+echo
