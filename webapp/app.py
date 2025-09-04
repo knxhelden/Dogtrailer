@@ -1,5 +1,6 @@
 from flask import Flask, Response, render_template
 from picamera2 import Picamera2
+import logging
 import io
 import time
 import libcamera
@@ -17,12 +18,15 @@ tempPin = "D4"
 ##################################
 
 # GPIO Konfiguration
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(relais1Pin, GPIO.OUT)
-GPIO.setup(relais2Pin, GPIO.OUT)
-GPIO.output(relais1Pin, GPIO.HIGH)
-GPIO.output(relais2Pin, GPIO.HIGH)
+try:
+    GPIO.setup(relais1Pin, GPIO.OUT, initial=GPIO.HIGH)
+    GPIO.setup(relais2Pin, GPIO.OUT, initial=GPIO.HIGH)
+except Exception as ex:
+    app.logger.error(f"GPIO setup failed: {ex}", exc_info=True)
+    GPIO.cleanup()
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(relais1Pin, GPIO.OUT, initial=GPIO.HIGH)
+    GPIO.setup(relais2Pin, GPIO.OUT, initial=GPIO.HIGH)
 
 # AM2302 Konfiguration
 dhtboard = getattr(board, tempPin)
@@ -116,7 +120,10 @@ atexit.register(cleanup)
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        # Flask Logger configuration
+        app.logger.setLevel(logging.DEBUG)
+
+        app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
     except KeyboardInterrupt:
         # Clean up when the script is interrupted (e.g., Ctrl+C)
         cleanup()
