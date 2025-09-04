@@ -1,0 +1,8 @@
+# requirements.txt for Dogtrailer
+
+Flask>=2.3
+Adafruit-Blinka>=8.0
+adafruit-circuitpython-dht>=4.0
+
+# Webserver for Production (only if USE_GUNICORN=true in the install script)
+gunicorn>=21.2
