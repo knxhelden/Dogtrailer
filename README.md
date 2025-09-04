@@ -61,7 +61,7 @@ Once installation is complete, the webserver will automatically start on boot.
 
 ## ▶️ Usage
 
-- Open a browser and connect to the Pi’s Access Point or local IP address: **http://<RASPBERRY-IP>:5000**
+Open a browser and connect to the Pi’s Access Point or local IP address: **http://RASPBERRY-IP:5000**
 
 You will have access to:
 
@@ -99,12 +99,12 @@ Useful commands for **NetworkManager** profiles:
 
 ## 🐞 Debugging & Development
 
-- Check service logs:
+Check service logs:
 ```bash
 journalctl -u dogtrailer -f
 ```
 
-- Restart the service:
+Restart the service:
 ```bash
 sudo systemctl restart dogtrailer
 ```
