@@ -40,7 +40,7 @@ The following diagram shows the wiring of the Raspberry Pi, relays, and power su
 
 ---
 
-### 🌐 Install Dogtrailer Webserver
+### 🌐 Install Dogtrailer Webapp and Access Point
 
 1. Copy the provided **install.sh** script to your Raspberry Pi (e.g., via **SFTP**).
 
